@@ -54,9 +54,9 @@
     <form onsubmit="loading()" action="<?= $base_url; ?>modulos-admin/login/php/logar.php" method="post" id="container-content" class="border-login">
         <img src="<?php echo $base_url ?>assets/imagens/site-admin/logo.png" id="logo-login">
         <p class="mb-4">PAINEL ADMIN</p>
-        <input type="text" required class="w-75 mb-2 form-control text-center" placeholder="Login" name="login">
+        <input type="text" autofocus required class="w-75 mb-2 form-control text-center" placeholder="Login" name="login">
         <input type="password" required class="w-75 mb-2 form-control text-center" placeholder="Senha" name="senha">
-        <button type="submit" class="btn btn-principal">ENTRAR</button>
+        <button type="submit" class="btn btn-principal text-dark">ENTRAR</button>
 
         <?php if(isset($_SESSION['erro-login'])){ ?>
             <h6 class="mt-3 fw-semibold text-danger">Verifique os dados!</h6>
