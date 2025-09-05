@@ -10,10 +10,10 @@
 
 /* ATUALIZAR SE NECESSÁRIO */
 .bg-logo-nav{
-    background-color: var(--cor3) !important;
+    background-color: rgba(0, 0, 0, 0.829) !important;
 }
 .color-toggler{
-    color: var(--cor4) !important;
+    color: white !important;
 }
 /* ATUALIZAR SE NECESSÁRIO */
 
