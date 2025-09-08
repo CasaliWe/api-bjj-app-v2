@@ -68,6 +68,13 @@ if (isset($data['email'])) {
 // faz o cadastro do usuário
 $cadastro = UserRepository::create($data);
 
-// retorna a resposta
+// verifica se houve erro no cadastro
+if (isset($cadastro['error'])) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => $cadastro['error'], 'details' => $cadastro['details']]);
+    exit;
+}
+
+// se deu tudo certo retorna a resposta
 http_response_code(201);
 echo json_encode(['success' => true, 'data' => $cadastro]);

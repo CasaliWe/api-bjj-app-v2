@@ -5,6 +5,8 @@ namespace Repositories;
 use Models\User;
 use Models\Token;
 
+use Core\Logger;
+
 class UserRepository {
     // pegando todos os usuários
     public static function getAll() {
@@ -47,38 +49,46 @@ class UserRepository {
         $dataAtual = new \DateTime();
         $dataExpiracao = $dataAtual->modify('+7 days');
 
-        $res = User::create(
-            [
-                'nome' => $dados['username'],
-                'email' => $dados['email'],
-                'senha' => password_hash($dados['password'], PASSWORD_BCRYPT),
-                'whatsapp_verificado' => 0,
-                'perfilPublico' => 'Não',
-                'estilo' => 'Equilibrado',
-                'competidor' => 'Não',
-                'primeiroAcesso' => 1,
-                'plano' => 'Plus',
-                'vencimento' => $dataExpiracao->format('Y-m-d'),
-                'exp' => 0,
-                'bjj_id' => $bjj_id 
-            ]
-        );
-
-        // gerando token de autenticação
-        $tokenValue = bin2hex(random_bytes(16));
-        Token::create([
-            'user_id' => $res->id,
-            'valor' => $tokenValue
-        ]);
-
-        // montando a resposta com apenas os dados necessários
-        return [
-            'id' => $res->id,
-            'nome' => $res->nome,
-            'email' => $res->email,
-            'bjj_id' => $res->bjj_id,
-            'token' => $tokenValue
-        ];
+        try {
+            $res = User::create(
+                [
+                    'nome' => $dados['username'],
+                    'email' => $dados['email'],
+                    'senha' => password_hash($dados['password'], PASSWORD_BCRYPT),
+                    'whatsapp_verificado' => 0,
+                    'perfilPublico' => 'Não',
+                    'estilo' => 'Equilibrado',
+                    'competidor' => 'Não',
+                    'primeiroAcesso' => 1,
+                    'plano' => 'Plus',
+                    'vencimento' => $dataExpiracao->format('Y-m-d'),
+                    'exp' => 0,
+                    'bjj_id' => $bjj_id 
+                ]
+            );
+    
+            // gerando token de autenticação
+            $tokenValue = bin2hex(random_bytes(16));
+            Token::create([
+                'user_id' => $res->id,
+                'valor' => $tokenValue
+            ]);
+    
+            // montando a resposta com apenas os dados necessários
+            return [
+                'id' => $res->id,
+                'nome' => $res->nome,
+                'email' => $res->email,
+                'bjj_id' => $res->bjj_id,
+                'token' => $tokenValue
+            ];
+        } catch (\Throwable $th) {
+            Logger::log('Erro ao criar usuário: ' . $th->getMessage(), 'ERROR');
+            return [
+                'error' => 'Erro ao criar usuário',
+                'details' => $th->getMessage()
+            ];
+        }
     }
 
     // verificando se o token é válido (se for ele retorna true, se não false)
