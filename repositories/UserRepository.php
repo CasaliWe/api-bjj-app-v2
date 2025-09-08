@@ -56,6 +56,15 @@ class UserRepository {
                     'email' => $dados['email'],
                     'senha' => password_hash($dados['password'], PASSWORD_BCRYPT),
                     'whatsapp_verificado' => 0,
+                    'idade' => 18,
+                    'peso' => 70,
+                    'faixa' => 'Branca',
+                    'academia' => 'Bjj Academy',
+                    'cidade' => 'São Paulo',
+                    'estado' => 'SP',
+                    'finalizacaos' => 'Chave de Braço',
+                    'bio' => 'Biografia',
+                    'pais' => 'Brasil',
                     'perfilPublico' => 'Não',
                     'estilo' => 'Equilibrado',
                     'competidor' => 'Não',
@@ -91,18 +100,50 @@ class UserRepository {
         }
     }
 
+    // função de login
+    public static function login($dados) {
+        $user = User::where('email', $dados['email'])->first();
+        if (!$user) {
+            return ['success' => false, 'message' => 'Usuário não encontrado'];
+        }
+
+        if (!password_verify($dados['senha'], $user->senha)) {
+            return ['success' => false, 'message' => 'Senha incorreta'];
+        }
+
+        // gerando token de autenticação
+        $tokenValue = bin2hex(random_bytes(16));
+        Token::create([
+            'user_id' => $user->id,
+            'valor' => $tokenValue
+        ]);
+
+        return [
+            'success' => true,
+            'message' => 'Login bem-sucedido',
+            'data' => [
+                'id' => $user->id,
+                'nome' => $user->nome,
+                'email' => $user->email,
+                'bjj_id' => $user->bjj_id,
+                'token' => $tokenValue
+            ]
+        ];
+    }
+
+
     // verificando se o token é válido (se for ele retorna true, se não false)
-    public static function checkToken($token, $user_id) {
+    public static function checkToken($token) {
         $tokenData = Token::where('valor', $token)->first();
         if(!$tokenData) {
             return false;
         }
 
         $user = User::where('id', $tokenData->user_id)->first();
-        if($user->id != $user_id) {
+        if(!$user) {
             return false;
         }
-        
-        return true;
+
+        return $user;
     }
 }
