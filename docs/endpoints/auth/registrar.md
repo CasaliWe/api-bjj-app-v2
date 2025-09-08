@@ -1,0 +1,3 @@
+- no arquivo principal ele faz as verificações, se não passar em alguma ele retorna;
+- para criar o user chamamos o repository create, nele geramos tudo que precisamos e retornamos apenas os dados necessários;
+- após receber esses dados necessários a gente envia para o front com success true;

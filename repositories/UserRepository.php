@@ -26,9 +26,59 @@ class UserRepository {
         return User::where('id', $id)->update($dados);
     }
 
-    // pegando usuário pelo email (verificar login e atualizar senha)
+    // pegando usuário pelo email (verificar login, cadastro e atualizar senha)
     public static function getByEmail($email) {
         return User::where('email', $email)->select('email', 'senha')->first();
+    }
+
+    // criando novo usuário
+    public static function create($dados) {
+
+        // gerando o bjj_id
+        $nome = strtolower(explode(' ', $dados['username'])[0]);
+        // pegando a primeira letra nome
+        $primeiraLetra = substr($nome, 0, 1);
+        // gerando um numero aleatório de 4 digitos
+        $numeroAleatorio = rand(1000, 9999);
+        // juntando tudo
+        $bjj_id = $primeiraLetra . $numeroAleatorio;
+
+        // calculando 7 dias após a data atual do cadastro
+        $dataAtual = new \DateTime();
+        $dataExpiracao = $dataAtual->modify('+7 days');
+
+        $res = User::create(
+            [
+                'nome' => $dados['username'],
+                'email' => $dados['email'],
+                'senha' => password_hash($dados['password'], PASSWORD_BCRYPT),
+                'whatsapp_verificado' => 0,
+                'perfilPublico' => 'Não',
+                'estilo' => 'Equilibrado',
+                'competidor' => 'Não',
+                'primeiroAcesso' => 1,
+                'plano' => 'Plus',
+                'vencimento' => $dataExpiracao->format('Y-m-d'),
+                'exp' => 0,
+                'bjj_id' => $bjj_id 
+            ]
+        );
+
+        // gerando token de autenticação
+        $tokenValue = bin2hex(random_bytes(16));
+        Token::create([
+            'user_id' => $res->id,
+            'valor' => $tokenValue
+        ]);
+
+        // montando a resposta com apenas os dados necessários
+        return [
+            'id' => $res->id,
+            'nome' => $res->nome,
+            'email' => $res->email,
+            'bjj_id' => $res->bjj_id,
+            'token' => $tokenValue
+        ];
     }
 
     // verificando se o token é válido (se for ele retorna true, se não false)
