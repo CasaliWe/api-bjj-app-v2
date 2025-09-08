@@ -85,9 +85,7 @@ class UserRepository {
             ]);
     
             // resposta para o user com todos os dodados menos a senha
-            return [
-                'token' => $tokenValue
-            ];
+            return $tokenValue;
 
         } catch (\Throwable $th) {
             Logger::log('Erro ao criar usuário: ' . $th->getMessage(), 'ERROR');

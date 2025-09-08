@@ -77,4 +77,4 @@ if (isset($cadastro['error'])) {
 
 // se deu tudo certo retorna a resposta
 http_response_code(201);
-echo json_encode(['success' => true, 'data' => $cadastro]);
+echo json_encode(['success' => true, 'token' => $cadastro]);
