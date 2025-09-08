@@ -55,6 +55,7 @@ class UserRepository {
                     'nome' => $dados['username'],
                     'email' => $dados['email'],
                     'senha' => password_hash($dados['password'], PASSWORD_BCRYPT),
+                    'whatsapp' => '(00) 0 0000-0000',
                     'whatsapp_verificado' => 0,
                     'idade' => 18,
                     'peso' => 70,
@@ -62,7 +63,7 @@ class UserRepository {
                     'academia' => 'Bjj Academy',
                     'cidade' => 'São Paulo',
                     'estado' => 'SP',
-                    'finalizacaos' => 'Chave de Braço',
+                    'finalizacao' => 'Chave de Braço',
                     'bio' => 'Biografia',
                     'pais' => 'Brasil',
                     'perfilPublico' => 'Não',
@@ -83,14 +84,9 @@ class UserRepository {
                 'valor' => $tokenValue
             ]);
     
-            // montando a resposta com apenas os dados necessários
-            return [
-                'id' => $res->id,
-                'nome' => $res->nome,
-                'email' => $res->email,
-                'bjj_id' => $res->bjj_id,
-                'token' => $tokenValue
-            ];
+            // resposta para o user
+            return $res;
+
         } catch (\Throwable $th) {
             Logger::log('Erro ao criar usuário: ' . $th->getMessage(), 'ERROR');
             return [
@@ -121,13 +117,7 @@ class UserRepository {
         return [
             'success' => true,
             'message' => 'Login bem-sucedido',
-            'data' => [
-                'id' => $user->id,
-                'nome' => $user->nome,
-                'email' => $user->email,
-                'bjj_id' => $user->bjj_id,
-                'token' => $tokenValue
-            ]
+            'data' => $user
         ];
     }
 

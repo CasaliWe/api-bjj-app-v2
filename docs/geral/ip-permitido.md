@@ -1,2 +1,0 @@
-- Preciso adicionar o ip no arquivo helpers/ips-permitidos.php;
-- se deixar * qualquer ip poderá acessar;
