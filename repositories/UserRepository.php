@@ -30,7 +30,7 @@ class UserRepository {
 
     // pegando usuário pelo email (verificar login, cadastro e atualizar senha)
     public static function getByEmail($email) {
-        return User::where('email', $email)->select('email', 'senha')->first();
+        return User::where('email', $email)->select('id', 'nome', 'email', 'senha')->first();
     }
 
     // criando novo usuário
@@ -231,6 +231,46 @@ class UserRepository {
             );
         }
     }
+
+    // recuperar senha do usuário
+    public static function recuperarSenha($id, $email, $nome) {
+        // gerando uma senha aleatória
+        $nova_senha = bin2hex(random_bytes(4));
+
+        // atualizando a senha no banco
+        $update = User::where('id', $id)->update(
+            ['senha' => password_hash($nova_senha, PASSWORD_DEFAULT)]
+        );
+
+        // importando o arquivo de envio de email
+        if($update) {
+            require_once __DIR__ . '/../helpers/envio-emails/recuperar-senha.php';
+            $emailEnviado = sendRecoveryEmail($email, $nome, $nova_senha);
+
+            if($emailEnviado) {
+                return [
+                    'success' => true,
+                    'message' => 'Uma nova senha foi enviada para seu e-mail'
+                ];
+            } else {
+                // Caso o e-mail não seja enviado, retorna a senha para o administrador
+                // Em produção, talvez você queira reverter a alteração da senha
+                Logger::log('Falha ao enviar e-mail de recuperação para: ' . $email, 'WARNING');
+                return [
+                    'success' => false,
+                    'message' => 'Houve um problema ao enviar o e-mail de recuperação',
+                    'admin_info' => 'Senha gerada: ' . $nova_senha
+                ];
+            }
+        }
+
+        Logger::log('Falha ao enviar e-mail de recuperação para: ' . $email, 'WARNING');
+        return [
+            'success' => false,
+            'message' => 'Não foi possível atualizar a senha'
+        ];
+    }
+        
 
     // verificando se o token é válido (se for ele retorna true, se não false)
     public static function checkToken($token) {
