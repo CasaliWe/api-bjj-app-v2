@@ -1,8 +1,5 @@
 <?php
 
-// Verifica se o IP é permitido
-include_once __DIR__ . '/ips-permitidos.php';
-
 /**
  * Função genérica para converter imagens enviadas via formulário em WebP.
  * Pode ser usada em qualquer projeto PHP.
