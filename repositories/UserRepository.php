@@ -208,6 +208,30 @@ class UserRepository {
         ];
     }
 
+    
+    // atualizando senha do usuário
+    public static function updateSenha($id, $dados) {
+        $user = User::where('id', $id)->first();
+        if(!$user) {
+            return false;
+        }
+
+        if($user->senha) {
+            if(!isset($dados['senha_atual']) || !password_verify($dados['senha_atual'], $user->senha)) {
+                return false;
+            }
+        }
+
+        // atualizando a senha
+        if(isset($dados['senha'])) {
+            $nova_senha = password_hash($dados['senha'], PASSWORD_DEFAULT);
+
+            return User::where('id', $id)->update(
+                ['senha' => $nova_senha]
+            );
+        }
+    }
+
     // verificando se o token é válido (se for ele retorna true, se não false)
     public static function checkToken($token) {
         $tokenData = Token::where('valor', $token)->first();
