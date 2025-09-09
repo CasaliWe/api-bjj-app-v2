@@ -270,6 +270,12 @@ class UserRepository {
             'message' => 'Não foi possível atualizar a senha'
         ];
     }
+
+
+    // atualizando plano
+    public static function updatePlano($bjj_id, $dados) {
+        return User::where('bjj_id', $bjj_id)->update($dados);
+    }
         
 
     // verificando se o token é válido (se for ele retorna true, se não false)
