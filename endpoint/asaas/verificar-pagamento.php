@@ -113,6 +113,19 @@ if ($pagamento['status'] == 'RECEIVED') {
     $dataAtual->modify("+$meses months");
     $novaDataVencimento = $dataAtual->format('Y-m-d');
 
+    // verifica se o já foi pago e já está no plano Plus (se sim ja retorna)
+    if($novaDataVencimento == $user['vencimento'] && $user['plano'] == 'Plus') {
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
+            'message' => 'Pagamento já confirmado anteriormente.',
+            'status' => $pagamento['status'],
+            'pagamento' => true
+        ]);
+        exit;
+    }
+
+    
     // montando os dados
     $dadosParaAtualizar = [
         'plano' => 'Plus',
