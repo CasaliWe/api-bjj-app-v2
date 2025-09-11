@@ -50,3 +50,60 @@ function salvarImagemWebP(array $arquivo, string $pastaDestino, string $prefixo 
 
     return $nomeWebP;
 }
+
+/**
+ * Converte uma imagem para o formato WebP.
+ * Utilizada para processar imagens de arquivos temporários após upload.
+ * 
+ * @param string $sourcePath    Caminho do arquivo de origem (temporário)
+ * @param string $targetPath    Caminho completo onde o arquivo WebP será salvo
+ * @param int $quality          Qualidade da imagem WebP (0-100)
+ * @return bool                 True se a conversão foi bem sucedida, False caso contrário
+ */
+function convertImageToWebP(string $sourcePath, string $targetPath, int $quality = 80): bool
+{
+    if (!file_exists($sourcePath)) {
+        return false;
+    }
+
+    // Determina o tipo de imagem
+    $imageInfo = getimagesize($sourcePath);
+    if ($imageInfo === false) {
+        return false;
+    }
+
+    $mimeType = $imageInfo['mime'];
+    
+    // Cria uma nova imagem com base no tipo do arquivo
+    switch ($mimeType) {
+        case 'image/jpeg':
+            $image = imagecreatefromjpeg($sourcePath);
+            break;
+        case 'image/png':
+            $image = imagecreatefrompng($sourcePath);
+            imagepalettetotruecolor($image);
+            imagealphablending($image, true);
+            imagesavealpha($image, true);
+            break;
+        case 'image/gif':
+            $image = imagecreatefromgif($sourcePath);
+            break;
+        case 'image/webp':
+            // Se já for WebP, apenas copia o arquivo
+            return copy($sourcePath, $targetPath);
+        default:
+            return false;
+    }
+    
+    if (!$image) {
+        return false;
+    }
+    
+    // Converte para WebP
+    $result = imagewebp($image, $targetPath, $quality);
+    
+    // Libera a memória
+    imagedestroy($image);
+    
+    return $result;
+}
