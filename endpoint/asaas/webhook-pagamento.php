@@ -39,24 +39,25 @@ if ($data['event'] == 'PAYMENT_RECEIVED') {
     ];
 
     // atualizando no banco
-    $res = UserRepository::updatePlano($bjj_id, $dadosParaAtualizar);
-    if(!$res) {
-        http_response_code(500);
-        echo json_encode(['success' => false, 'message' => 'Erro ao atualizar o plano.']);
-        exit;
-    }
+    UserRepository::updatePlano($bjj_id, $dadosParaAtualizar);
 
     // enviando email de confirmação
     $user = UserRepository::getByBjjId($bjj_id);
 
     // chamando a função de envio de email
-    $res = UserRepository::sendEmailPlanoAtivado($user->email, $user->nome, $meses);
-
+    UserRepository::sendEmailPlanoAtivado($user->email, $user->nome, $meses);
 
     http_response_code(200);
     echo json_encode([
         'success' => true,
         'message' => 'Pagamento confirmado.'
+    ]);
+    exit;
+}else {
+    http_response_code(400);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Evento esperado: PAYMENT_RECEIVED não recebido.'
     ]);
     exit;
 }
