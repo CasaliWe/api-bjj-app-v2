@@ -669,7 +669,7 @@ class TecnicasRepository {
             // Move o arquivo de vídeo
             move_uploaded_file($videoData['videoFile']['tmp_name'], $diretorioVideos . $videoNome);
             
-            // Sempre gera poster nativo PHP, sem FFmpeg
+            // Gerar poster simples apenas com fundo
             $videoPath = $diretorioVideos . $videoNome;
             $posterPath = $diretorioPosters . $posterNome;
             $width = 640;
@@ -681,23 +681,18 @@ class TecnicasRepository {
             if (isset($videoData['video_height']) && $videoData['video_height'] > 0) {
                 $height = (int)$videoData['video_height'];
             }
-            // Cria imagem genérica proporcional (cinza claro)
+            
+            // Criar imagem de fundo
             $img = imagecreatetruecolor($width, $height);
-            $corFundo = imagecolorallocate($img, 230, 230, 230); // cinza claro
+            
+            // Definir cor de fundo escura da identidade visual
+            $corFundo = imagecolorallocate($img, 15, 20, 25); // var(--background) 215 28% 8%
+            
+            // Preencher fundo
             imagefill($img, 0, 0, $corFundo);
-            // Desenha ícone de play centralizado
-            $corIcone = imagecolorallocate($img, 100, 100, 100);
-            $iconW = (int)($width * 0.3);
-            $iconH = (int)($height * 0.3);
-            $iconX = (int)(($width - $iconW) / 2);
-            $iconY = (int)(($height - $iconH) / 2);
-            $points = [
-                $iconX + (int)($iconW * 0.2), $iconY + (int)($iconH * 0.2),
-                $iconX + (int)($iconW * 0.2), $iconY + (int)($iconH * 0.8),
-                $iconX + (int)($iconW * 0.8), $iconY + (int)($iconH * 0.5)
-            ];
-            imagefilledpolygon($img, $points, 3, $corIcone);
-            imagejpeg($img, $posterPath);
+            
+            // Salvar imagem
+            imagejpeg($img, $posterPath, 90);
             imagedestroy($img);
             
             return [
