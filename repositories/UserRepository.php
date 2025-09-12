@@ -287,7 +287,111 @@ class UserRepository {
         require_once __DIR__ . '/../helpers/envio-emails/plano-ativado.php';
         return sendPlanoAtivadoEmail($email, $nome, $meses);
     }
-        
+
+    // enviando email de aviso de plano próximo do vencimento
+    public static function sendEmailPlanoProximoVencimento($email, $nome) {
+        require_once __DIR__ . '/../helpers/envio-emails/plano-proximo-vencimento.php';
+        return sendPlanoProximoVencimentoEmail($email, $nome);
+    }
+
+    // resetando o token 
+    public static function resetToken() {
+        // pegando todos os tokens
+        $tokens = Token::all();
+
+        // verificando se o token tem 30 dias ou mais contando a data de criação
+        // salvar em uma var quantos foram deletados
+        $deletados = 0;
+        $hoje = new \DateTime();
+        foreach ($tokens as $token) {
+            $dataCriacao = new \DateTime($token->created_at);
+            $intervalo = $hoje->diff($dataCriacao);
+            if ($intervalo->days >= 1) {
+                // deletando o token
+                Token::where('id', $token->id)->delete();
+                $deletados++;
+            }
+        }
+
+        return [
+            'success' => true,
+            'message' => 'Tokens expirados removidos com sucesso',
+            'data'  => $deletados . ' tokens removidos'
+        ];
+    }
+
+
+    // função para checar assinaturas (vencimento de planos)
+    public static function checkAssinaturas() {
+        try {
+
+            // -------------------------------------------
+            // atualizando assinaturas vencidas
+            // -------------------------------------------
+            $usuarios = User::all();
+            $hoje = new \DateTime();
+            $atualizados = 0;
+
+            foreach ($usuarios as $usuario) {
+                if ($usuario->vencimento) {
+                    $dataVencimento = new \DateTime($usuario->vencimento);
+                    if ($hoje > $dataVencimento) {
+                        // plano expirado, atualizando para Grátis
+                        User::where('id', $usuario->id)->update([
+                            'plano' => 'Grátis',
+                            'vencimento' => null
+                        ]);
+                        $atualizados++;
+                    }
+                }
+            }
+
+            // -------------------------------------------
+            // enviando email para usuários que faltam 1 dia para o vencimento
+            // -------------------------------------------
+
+            $avisados = 0;
+            foreach ($usuarios as $usuario) {
+                if ($usuario->vencimento) {
+                    $dataVencimento = new \DateTime($usuario->vencimento);
+                    $intervalo = $hoje->diff($dataVencimento);
+                    if ($intervalo->days == 1 && $hoje < $dataVencimento) {
+                        // faltando 1 dia para o vencimento, enviando email
+                        self::sendEmailPlanoProximoVencimento($usuario->email, $usuario->nome);
+                        $avisados++;
+                    }
+                }
+            }
+
+
+            return [
+                'success' => true,
+                'message' => 'Verificação de assinaturas concluída',
+                'data' => $atualizados . ' usuários atualizados para Grátis, ' . $avisados . ' usuários avisados sobre o vencimento'
+            ];
+
+        } catch (\Throwable $th) {
+            Logger::log('Erro ao verificar assinaturas: ' . $th->getMessage(), 'ERROR');
+            return [
+                'success' => false,
+                'message' => 'Erro ao verificar assinaturas',
+                'details' => $th->getMessage()
+            ];
+        }
+    }
+
+
+    // atualizando exp
+    public static function updateExp($id, $dados) {
+        // pegando o exp atual salvo do user e somando com o novo exp
+        $user = User::where('id', $id)->first();
+        if (!$user) {
+            return false;
+        }
+
+        $user->exp += $dados['exp'];
+        return $user->save();
+    }
 
     // verificando se o token é válido (se for ele retorna true, se não false)
     public static function checkToken($token) {
