@@ -276,6 +276,17 @@ class UserRepository {
     public static function updatePlano($bjj_id, $dados) {
         return User::where('bjj_id', $bjj_id)->update($dados);
     }
+
+    // pegando usuário pelo bjj_id
+    public static function getByBjjId($bjj_id) {
+        return User::where('bjj_id', $bjj_id)->first();
+    }
+
+    // enviando email de confirmação de plano ativado
+    public static function sendEmailPlanoAtivado($email, $nome, $meses) {
+        require_once __DIR__ . '/../helpers/envio-emails/plano-ativado.php';
+        return sendPlanoAtivadoEmail($email, $nome, $meses);
+    }
         
 
     // verificando se o token é válido (se for ele retorna true, se não false)
