@@ -15,4 +15,8 @@ class Observacoes extends Model {
         'data_atualizacao'
     ];
     public $timestamps = false;
+    
+    public function usuario() {
+        return $this->belongsTo(User::class, 'usuario_id');
+    }
 }

@@ -15,4 +15,20 @@ class User extends Model {
     ];
     protected $hidden = ['senha'];
     public $timestamps = false;
+    
+    public function competicoes() {
+        return $this->hasMany(Competicoes::class, 'user_id');
+    }
+    
+    public function treinos() {
+        return $this->hasMany(Treino::class, 'usuario_id');
+    }
+    
+    public function observacoes() {
+        return $this->hasMany(Observacoes::class, 'usuario_id');
+    }
+    
+    public function tokens() {
+        return $this->hasMany(Token::class, 'user_id');
+    }
 }
