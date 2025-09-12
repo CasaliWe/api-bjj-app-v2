@@ -164,7 +164,7 @@ class ObservacoesRepository {
                 'titulo' => $dados['titulo'],
                 'conteudo' => $dados['conteudo'],
                 'tag' => $dados['tag'],
-                'data' => date('Y-m-d H:i:s'), // Data atual
+                'data' => date('Y-m-d'), // Apenas data, sem horário
                 'usuario_id' => $userId
             ]);
             
@@ -227,7 +227,7 @@ class ObservacoesRepository {
             $observacao->titulo = $dados['titulo'];
             $observacao->conteudo = $dados['conteudo'];
             $observacao->tag = $dados['tag'];
-            $observacao->data_atualizacao = date('Y-m-d H:i:s'); // Data de atualização
+            $observacao->data_atualizacao = date('Y-m-d'); // Apenas data, sem horário
             $observacao->save();
             
             // Formata a resposta
