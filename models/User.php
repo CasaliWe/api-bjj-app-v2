@@ -31,4 +31,12 @@ class User extends Model {
     public function tokens() {
         return $this->hasMany(Token::class, 'user_id');
     }
+    
+    public function tecnicas() {
+        return $this->hasMany(Tecnicas::class, 'usuario_id');
+    }
+    
+    public function posicoes() {
+        return $this->hasMany(Posicoes::class, 'usuario_id');
+    }
 }
